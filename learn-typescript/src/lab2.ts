@@ -12,3 +12,16 @@ const product: { name: string; rate: ProductRate; price: number } = {
 };
 
 console.log(product);
+
+const listProducts: { name: string; rate: ProductRate; price: number }[] = [
+  {
+    name: "laptop1",
+    rate: ProductRate.low,
+    price: 10000,
+  },
+  {
+    name: "laptop2",
+    rate: ProductRate.low,
+    price: 10000,
+  },
+];
