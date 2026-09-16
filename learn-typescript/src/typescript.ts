@@ -18,3 +18,9 @@ const student: { name: string; age: number; isActive: boolean } = {
   age: 34,
   isActive: true,
 };
+
+// enum
+enum status {
+  done = "hoàn thành",
+  doing = "đang làm",
+}
