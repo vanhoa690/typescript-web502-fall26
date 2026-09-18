@@ -65,14 +65,20 @@ Bạn cũng có thể sử dụng cú pháp generic:
 let scores: Array<number> = [90, 85, 88];
 ```
 
-## 5. Special Types: tuple
+## 5. Special Types: Enum
 
-**Tuple** là một mảng có độ dài cố định và các phần tử có kiểu được xác định trước.
+**Enum** dùng để định nghĩa một tập hợp các giá trị có tên cố định, giúp code dễ đọc và hạn chế việc dùng chuỗi/số tùy ý.
 
 ```typescript
-let tuple: [string, number] = ["Alice", 25];
-// Lỗi nếu sai kiểu hoặc độ dài
-tuple = ["Bob", 30, "extra"]; // Lỗi: Độ dài không khớp
+enum Priority {
+  Low = "Thấp",
+  Medium = "Trung bình",
+  High = "Cao",
+}
+let priority: Priority = Priority.Low;
+
+console.log(priority);
+// Thấp
 ```
 
 ## 6. Special Types: any

@@ -21,7 +21,13 @@ const listProducts: { name: string; rate: ProductRate; price: number }[] = [
   },
   {
     name: "laptop2",
-    rate: ProductRate.low,
+    rate: ProductRate.high,
     price: 10000,
   },
 ];
+
+function calPrice(list: { name: string; rate: ProductRate; price: number }[]) {
+  return 111;
+}
+console.log(listProducts);
+console.log(calPrice(listProducts));
