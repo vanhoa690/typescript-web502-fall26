@@ -41,5 +41,5 @@ result = 3;
 // Literal : |
 let doSomething: "success" | "error" = "success";
 
-// Null va Underfine
+// Null va Underfined
 let value: null | undefined;
