@@ -22,3 +22,12 @@ const sumAB = (a: number, b: number): number => {
   return a + b;
 };
 sumAB(3, 4);
+
+// default params
+
+const sayHellerUser = (user: string | number = "hoadv") => {
+  return user;
+};
+console.log(sayHellerUser());
+console.log(sayHellerUser("namdv"));
+console.log(sayHellerUser(66));
