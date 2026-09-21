@@ -31,3 +31,17 @@ const sayHellerUser = (user: string | number = "hoadv") => {
 console.log(sayHellerUser());
 console.log(sayHellerUser("namdv"));
 console.log(sayHellerUser(66));
+
+// option param
+const sayHelloPerson = (user?: string) => {
+  return user;
+};
+
+console.log(sayHelloPerson());
+
+
+const createUser = (name: string, age?: number, role = "user") {
+  console.log(name, age, role)
+}
+
+createUser("hoadv", 36, "admin")
