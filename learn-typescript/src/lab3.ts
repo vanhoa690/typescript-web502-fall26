@@ -39,9 +39,33 @@ const sayHelloPerson = (user?: string) => {
 
 console.log(sayHelloPerson());
 
+const createUser = (name: string, age?: number, role = "user") => {
+  console.log(name, age, role);
+};
 
-const createUser = (name: string, age?: number, role = "user") {
-  console.log(name, age, role)
-}
+createUser("hoadv", 36, "admin");
 
-createUser("hoadv", 36, "admin")
+const callTotalPrice = (...prices: number[]) => {
+  console.log(prices); // [...prices]
+};
+
+callTotalPrice(10000, 2000, 30000);
+
+// array:
+const arr1 = [1, 2];
+const arr2 = [3, 4];
+const arr3 = [...arr1, ...arr2]; // chia ra arr1: [1,2,3,4]
+console.log(arr3);
+
+const obj1 = {
+  id: 1,
+  name: "hoadv",
+};
+
+const obj2 = {
+  age: 36,
+};
+
+const obj3 = { ...obj1, ...obj2 };
+
+console.log(obj3);
