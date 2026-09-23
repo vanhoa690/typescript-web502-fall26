@@ -24,12 +24,23 @@ interface User {
   name: string;
   age: number;
 }
-// Type: object
+// Type: object / Literal
 type UserInfo = {
   id: number;
   name: string;
   age: number;
 };
+type StudentInfo = {
+  class: string;
+};
+
+const newStudent: UserInfo & StudentInfo = {
+  id: 1,
+  name: "hoadv",
+  age: 30,
+  class: "typescript",
+};
+
 const user: UserInfo = {
   id: 1,
   name: "hoadv",
@@ -42,3 +53,12 @@ const users: User[] = [
     age: 30,
   },
 ];
+
+// Generic <T>: useState<T>()
+function getValue<T>(value: T): T {
+  return value;
+}
+
+getValue<string>("3");
+getValue(1);
+getValue<User>({ name: "hoadv", age: 30 });
