@@ -1,0 +1,12 @@
+{
+  "students": [
+    {
+      "id": "1",
+      "fullName": "Nguyễn Văn A",
+      "year": 2005,
+      "code": "ph6688",
+      "major": "Marketing"
+    }
+  ],
+  "users": []
+}
