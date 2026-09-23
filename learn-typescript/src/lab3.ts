@@ -69,3 +69,11 @@ const obj2 = {
 const obj3 = { ...obj1, ...obj2 };
 
 console.log(obj3);
+
+const mergeProducts = (...products: string[][]): void => {
+  console.log(products.flat());
+};
+
+const a = ["iPhone", "Samsung"];
+const b = ["Xiaomi", "Oppo"];
+mergeProducts(a, b);
