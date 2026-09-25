@@ -1,4 +1,4 @@
-# Lesson 1 - React + TypeScript: JSX và Component
+# Lesson 5 - React + TypeScript: JSX và Component
 
 ## 1. Mục tiêu bài học
 
@@ -407,7 +407,7 @@ App
 
 # 14. Tổng kết
 
-Sau Lesson 1 cần hiểu:
+Sau Lesson 5 cần hiểu:
 
 ```text
 React

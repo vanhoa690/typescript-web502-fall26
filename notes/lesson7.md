@@ -1,4 +1,4 @@
-# Lesson 3 - React + TypeScript: State và useState
+# Lesson 7 - React + TypeScript: State và useState
 
 ## 1. Mục tiêu bài học
 
@@ -548,45 +548,3 @@ UI cập nhật
 ```
 
 ---
-
-# 18. Lộ trình tiếp theo
-
-Sau khi hoàn thành 3 Lesson này, có thể tiếp tục:
-
-```text
-Lesson 4
-Render danh sách + map()
-        ↓
-Lesson 5
-Form + React Hook Form
-        ↓
-Lesson 6
-useEffect
-        ↓
-Lesson 7
-Call API + Axios
-        ↓
-Lesson 8
-CRUD
-        ↓
-Lesson 9
-React Router
-        ↓
-Lesson 10
-Authentication + Protected Route
-```
-
-Chưa nên học quá nhiều thư viện quản lý State hoặc API ngay từ đầu.
-
-Hãy chắc chắn rằng sinh viên hiểu:
-
-```text
-JSX
-Component
-Props
-Event
-State
-useState
-```
-
-trước khi chuyển sang các kiến thức nâng cao.

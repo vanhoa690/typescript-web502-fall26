@@ -1,422 +1,457 @@
-# Lesson 1 - React + TypeScript: JSX và Component
+# Lesson 6 - React + TypeScript: Props và Event
 
 ## 1. Mục tiêu bài học
 
 Sau bài học này, sinh viên có thể:
 
-- Hiểu React là gì.
-- Tạo project React + TypeScript bằng Vite.
-- Hiểu JSX.
-- Phân biệt JSX và HTML.
-- Hiểu Component.
-- Tạo Function Component.
-- Tách Component thành các file riêng.
-- Sử dụng Component trong `App.tsx`.
+- Hiểu Props.
+- Truyền dữ liệu từ Component cha xuống Component con.
+- Định nghĩa Props bằng TypeScript.
+- Sử dụng Props tùy chọn.
+- Truyền Function thông qua Props.
+- Xử lý sự kiện trong React.
+- Kết hợp Component + Props + Event.
 
 ---
 
-## 2. React là gì?
+# 2. Props là gì?
 
-React là thư viện JavaScript dùng để xây dựng giao diện người dùng.
-
-React cho phép chúng ta chia giao diện thành nhiều Component nhỏ.
+Props là dữ liệu được truyền từ Component cha xuống Component con.
 
 Ví dụ:
 
 ```text
-Website
-│
-├── Header
-├── Navbar
-├── ProductList
-│   ├── ProductItem
-│   ├── ProductItem
-│   └── ProductItem
-├── Sidebar
-└── Footer
+App
+ │
+ │ name
+ ↓
+User
 ```
 
-Thay vì viết toàn bộ giao diện trong một file lớn, chúng ta chia giao diện thành nhiều Component.
-
-Lợi ích:
-
-- Code dễ đọc.
-- Dễ tái sử dụng.
-- Dễ bảo trì.
-- Dễ phát triển dự án lớn.
-
----
-
-# 3. Chuẩn bị môi trường
-
-## 3.1. Cài Node.js
-
-Tải Node.js tại:
-
-https://nodejs.org/
-
-Kiểm tra:
-
-```bash
-node -v
-npm -v
-```
-
----
-
-# 4. Tạo project React + TypeScript
-
-Sử dụng Vite:
-
-```bash
-npm create vite@latest react-ts-demo -- --template react-ts
-```
-
-Di chuyển vào project:
-
-```bash
-cd react-ts-demo
-```
-
-Cài package:
-
-```bash
-npm install
-```
-
-Chạy project:
-
-```bash
-npm run dev
-```
-
-Mở trình duyệt:
-
-```text
-http://localhost:5173
-```
-
----
-
-# 5. Cấu trúc project
-
-```text
-react-ts-demo
-│
-├── public
-├── src
-│   ├── assets
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-│
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-```
-
-Hai file quan trọng:
-
-- `main.tsx`: điểm bắt đầu của ứng dụng React.
-- `App.tsx`: Component chính.
-
----
-
-# 6. JSX là gì?
-
-JSX là cú pháp cho phép chúng ta viết giao diện giống HTML bên trong JavaScript/TypeScript.
-
-Ví dụ:
+Component cha:
 
 ```tsx
-function App() {
-  return (
-    <div>
-      <h1>Hello React</h1>
-      <p>Xin chào React + TypeScript</p>
-    </div>
-  );
+<User name="Hòa" />
+```
+
+Component con:
+
+```tsx
+function User(props) {
+  return <h2>Xin chào {props.name}</h2>;
 }
-
-export default App;
-```
-
-Phần:
-
-```tsx
-<h1>Hello React</h1>
-```
-
-là JSX.
-
-JSX giúp việc viết giao diện trong React trực quan hơn.
-
----
-
-# 7. JSX không hoàn toàn giống HTML
-
-JSX nhìn giống HTML nhưng có một số khác biệt.
-
-HTML:
-
-```html
-<div class="container">
-  <h1>Hello</h1>
-</div>
-```
-
-JSX:
-
-```tsx
-<div className="container">
-  <h1>Hello</h1>
-</div>
-```
-
-Một số thuộc tính thường gặp:
-
-| HTML      | JSX         |
-| --------- | ----------- |
-| `class`   | `className` |
-| `for`     | `htmlFor`   |
-| `onclick` | `onClick`   |
-
----
-
-# 8. Hiển thị dữ liệu trong JSX
-
-Có thể đưa JavaScript vào JSX bằng `{}`.
-
-```tsx
-function App() {
-  const name = "Hòa";
-  const age = 30;
-
-  return (
-    <div>
-      <h1>Xin chào {name}</h1>
-      <p>Tuổi: {age}</p>
-    </div>
-  );
-}
-```
-
-Có thể sử dụng biểu thức:
-
-```tsx
-<p>{10 + 20}</p>
 ```
 
 Kết quả:
 
 ```text
-30
+Xin chào Hòa
 ```
 
 ---
 
-# 9. Component là gì?
+# 3. Props với TypeScript
 
-Component là một phần giao diện được đóng gói thành một khối riêng.
+Trong TypeScript, chúng ta nên định nghĩa kiểu dữ liệu cho Props.
+
+```tsx
+interface UserProps {
+  name: string;
+  age: number;
+}
+```
+
+Component:
+
+```tsx
+interface UserProps {
+  name: string;
+  age: number;
+}
+
+function User({ name, age }: UserProps) {
+  return (
+    <div>
+      <h2>Tên: {name}</h2>
+      <p>Tuổi: {age}</p>
+    </div>
+  );
+}
+
+export default User;
+```
+
+Sử dụng:
+
+```tsx
+function App() {
+  return <User name="Hòa" age={30} />;
+}
+```
+
+---
+
+# 4. Props giúp TypeScript kiểm tra dữ liệu
+
+Đúng:
+
+```tsx
+<User name="Hòa" age={30} />
+```
+
+Sai:
+
+```tsx
+<User name={123} age="30" />
+```
+
+Vì:
+
+```text
+name → string
+age  → number
+```
+
+---
+
+# 5. Props tùy chọn
+
+Thêm dấu `?`:
+
+```tsx
+interface ButtonProps {
+  label: string;
+  color?: string;
+}
+```
+
+Có thể sử dụng:
+
+```tsx
+<Button label="Đăng nhập" />
+```
+
+hoặc:
+
+```tsx
+<Button label="Đăng nhập" color="red" />
+```
+
+Có thể đặt giá trị mặc định:
+
+```tsx
+function Button({ label, color = "blue" }: ButtonProps) {
+  return <button style={{ color }}>{label}</button>;
+}
+```
+
+---
+
+# 6. Props là Function
+
+Props có thể truyền Function.
 
 Ví dụ:
 
 ```tsx
-function Button() {
-  return <button>Đăng nhập</button>;
+interface ButtonProps {
+  label: string;
+  onClick: () => void;
 }
 ```
 
-Sử dụng:
+Component:
+
+```tsx
+function Button({ label, onClick }: ButtonProps) {
+  return <button onClick={onClick}>{label}</button>;
+}
+
+export default Button;
+```
+
+Component cha:
 
 ```tsx
 function App() {
-  return (
-    <div>
-      <Button />
-    </div>
-  );
+  const handleClick = () => {
+    alert("Bạn vừa click button");
+  };
+
+  return <Button label="Click me" onClick={handleClick} />;
 }
 ```
 
-Có thể hiểu:
-
-```text
-Button Component
-       ↓
-    <button>
-```
-
----
-
-# 10. Function Component
-
-Trong React hiện đại, chúng ta thường sử dụng Function Component.
-
-Ví dụ:
-
-```tsx
-function Header() {
-  return (
-    <header>
-      <h1>My Website</h1>
-    </header>
-  );
-}
-
-export default Header;
-```
-
-Sử dụng:
-
-```tsx
-import Header from "./Header";
-
-function App() {
-  return (
-    <div>
-      <Header />
-    </div>
-  );
-}
-
-export default App;
-```
-
----
-
-# 11. Quy tắc đặt tên Component
-
-Tên Component nên viết hoa chữ cái đầu:
-
-```tsx
-function Header() {}
-function Footer() {}
-function ProductList() {}
-function ProductItem() {}
-```
-
-Sử dụng:
-
-```tsx
-<Header />
-<Footer />
-<ProductList />
-<ProductItem />
-```
-
-Không nên:
-
-```tsx
-function header() {}
-function product() {}
-```
-
----
-
-# 12. Tách Component thành file riêng
-
-Tạo cấu trúc:
-
-```text
-src
-│
-├── components
-│   ├── Header.tsx
-│   ├── Footer.tsx
-│   └── Button.tsx
-│
-├── App.tsx
-└── main.tsx
-```
-
-`Header.tsx`:
-
-```tsx
-function Header() {
-  return (
-    <header>
-      <h1>My Website</h1>
-    </header>
-  );
-}
-
-export default Header;
-```
-
-`App.tsx`:
-
-```tsx
-import Header from "./components/Header";
-
-function App() {
-  return (
-    <div>
-      <Header />
-    </div>
-  );
-}
-
-export default App;
-```
-
----
-
-# 13. Bài tập thực hành
-
-## Bài 1
-
-Tạo Component `Header`:
-
-```text
-Header
-├── Logo
-└── Menu
-```
-
-## Bài 2
-
-Tạo Component `Footer`.
-
-## Bài 3
-
-Tạo Component `ProductItem` và hiển thị:
-
-```text
-Tên sản phẩm
-Giá
-Danh mục
-```
-
-## Bài 4
-
-Tạo giao diện:
+Luồng dữ liệu:
 
 ```text
 App
-│
-├── Header
-├── ProductList
-│   ├── ProductItem
-│   ├── ProductItem
-│   └── ProductItem
-└── Footer
+ │
+ │ onClick
+ ↓
+Button
+ │
+ ↓
+button
 ```
 
 ---
 
-# 14. Tổng kết
+# 7. Event trong React
 
-Sau Lesson 1 cần hiểu:
+React sử dụng event để xử lý hành động của người dùng.
 
-```text
-React
- │
- ├── JSX
- │
- └── Component
-       │
-       └── Function Component
+Ví dụ:
+
+```tsx
+<button onClick={handleClick}>Click</button>
 ```
 
-Chưa cần học `useState`, `useEffect` hay Router ở bài này.
+Một số event thường gặp:
+
+```text
+onClick
+onChange
+onSubmit
+onMouseEnter
+onKeyDown
+```
+
+---
+
+# 8. Event với TypeScript
+
+Ví dụ input:
+
+```tsx
+function App() {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.value);
+  };
+
+  return <input onChange={handleChange} />;
+}
+```
+
+Có thể import type:
+
+```tsx
+import type { ChangeEvent } from "react";
+```
+
+Sau đó:
+
+```tsx
+const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  console.log(event.target.value);
+};
+```
+
+---
+
+# 9. Event click
+
+Ví dụ:
+
+```tsx
+function App() {
+  const handleClick = () => {
+    alert("Hello React");
+  };
+
+  return <button onClick={handleClick}>Click</button>;
+}
+```
+
+Có thể viết trực tiếp:
+
+```tsx
+<button onClick={() => alert("Hello")}>Click</button>
+```
+
+---
+
+# 10. Props + Event
+
+Ví dụ tạo Button dùng chung:
+
+```tsx
+interface ButtonProps {
+  label: string;
+  onClick: () => void;
+}
+
+function Button({ label, onClick }: ButtonProps) {
+  return <button onClick={onClick}>{label}</button>;
+}
+```
+
+Sử dụng:
+
+```tsx
+function App() {
+  const handleLogin = () => {
+    alert("Đăng nhập");
+  };
+
+  const handleRegister = () => {
+    alert("Đăng ký");
+  };
+
+  return (
+    <div>
+      <Button label="Đăng nhập" onClick={handleLogin} />
+
+      <Button label="Đăng ký" onClick={handleRegister} />
+    </div>
+  );
+}
+```
+
+Một Component có thể tái sử dụng nhiều lần với Props khác nhau.
+
+---
+
+# 11. Bài tập thực hành 1 - UserCard
+
+Tạo:
+
+```text
+UserCard
+```
+
+Props:
+
+```tsx
+interface UserProps {
+  name: string;
+  age: number;
+  email: string;
+}
+```
+
+Hiển thị:
+
+```text
+----------------------
+Tên: Nguyễn Văn A
+Tuổi: 20
+Email: example@gmail.com
+----------------------
+```
+
+Trong `App.tsx` tạo ít nhất 3 UserCard.
+
+---
+
+# 12. Bài tập thực hành 2 - Button
+
+Tạo Component:
+
+```text
+Button
+```
+
+Props:
+
+```tsx
+interface ButtonProps {
+  label: string;
+  color?: string;
+  onClick: () => void;
+}
+```
+
+Yêu cầu:
+
+- Hiển thị label.
+- Nhận màu từ Props.
+- Click Button thực hiện Function từ Component cha.
+
+---
+
+# 13. Bài tập thực hành 3 - ProductItem
+
+Tạo:
+
+```tsx
+interface ProductProps {
+  name: string;
+  price: number;
+  category: string;
+}
+```
+
+Ví dụ:
+
+```tsx
+<ProductItem name="iPhone" price={20000000} category="Điện thoại" />
+```
+
+---
+
+# 14. Bài tập thực hành 4 - TodoForm
+
+Tạo Component:
+
+```text
+TodoForm
+```
+
+Có:
+
+```text
+[ Nhập công việc             ]
+
+        [Thêm]
+```
+
+Khi click `Thêm`, gọi Function được truyền từ Component cha thông qua Props.
+
+---
+
+# 15. Tổng kết
+
+Sau Lesson 6 cần hiểu:
+
+```text
+Parent
+   │
+   │ Props
+   ↓
+Child
+```
+
+Props có thể là:
+
+```text
+String
+Number
+Boolean
+Object
+Array
+Function
+```
+
+Ví dụ:
+
+```tsx
+interface Props {
+  name: string;
+  age: number;
+  active: boolean;
+  onClick: () => void;
+}
+```
+
+Kiến thức trọng tâm:
+
+```text
+Component
+    ↓
+Props
+    ↓
+Event
+    ↓
+Callback Function
+```
