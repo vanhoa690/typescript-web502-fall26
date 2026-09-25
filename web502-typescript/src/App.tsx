@@ -2,6 +2,7 @@ import { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
 // import ListPage from "./pages/ListPage";
 import MyButton from "./components/Button";
+import MyInput from "./components/Input";
 
 function App() {
   const name = "hoadv";
@@ -28,6 +29,7 @@ function App() {
       <div className="max-w-6xl mx-auto mt-10 px-4 text-center">
         <h1 className="text-4xl font-bold mb-4">Chào mừng đến với WEB502</h1>
         <p>ten toi la : {name}</p>
+        <MyInput />
         <MyButton
           label="ButtonApp"
           onClick={() => alert("Truyen Onlick")}
