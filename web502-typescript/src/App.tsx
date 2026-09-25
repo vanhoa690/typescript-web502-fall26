@@ -29,7 +29,7 @@ function App() {
         <h1 className="text-4xl font-bold mb-4">Chào mừng đến với WEB502</h1>
         <p>ten toi la : {name}</p>
         <MyButton label="ButtonApp"></MyButton>
-        <MyButton label="ButtonSecond" />
+        <MyButton label="ButtonSecond" text="Second" />
         {/* <ListPage /> */}
         {/* <ListPage></ListPage> */}
       </div>
