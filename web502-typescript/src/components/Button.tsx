@@ -1,6 +1,7 @@
 interface Props {
   label: string;
   text?: string;
+  onClick?: () => void;
 }
 
 function MyButton(props: Props) {
@@ -12,7 +13,7 @@ function MyButton(props: Props) {
   return (
     <div>
       <p>{props.text || "Day doan text"}</p>
-      <button className="border px-2" onClick={handleClick}>
+      <button className="border px-2" onClick={props.onClick || handleClick}>
         {props.label}
       </button>
     </div>
