@@ -1,11 +1,17 @@
-function MyButton() {
+interface Props {
+  label: string;
+}
+
+function MyButton(props: Props) {
+  console.log(props);
+
   const handleClick = () => {
     alert("Click button");
   };
   return (
     <div>
       <button className="border px-2" onClick={handleClick}>
-        Button
+        {props.label}
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import ListPage from "./pages/ListPage";
+// import ListPage from "./pages/ListPage";
 import MyButton from "./components/Button";
 
 function App() {
@@ -28,7 +28,8 @@ function App() {
       <div className="max-w-6xl mx-auto mt-10 px-4 text-center">
         <h1 className="text-4xl font-bold mb-4">Chào mừng đến với WEB502</h1>
         <p>ten toi la : {name}</p>
-        <MyButton></MyButton>
+        <MyButton label="ButtonApp"></MyButton>
+        <MyButton label="ButtonSecond" />
         {/* <ListPage /> */}
         {/* <ListPage></ListPage> */}
       </div>
