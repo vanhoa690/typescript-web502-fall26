@@ -3,14 +3,22 @@ import { useForm } from "react-hook-form";
 
 interface TodoFormData {
   title: string;
-  completed: boolean;
+  completed: string;
   priority: string;
 }
 function AddPage() {
-  const { register, handleSubmit } = useForm<TodoFormData>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TodoFormData>();
   const onSubmit = (data: TodoFormData) => {
     console.log(data);
-    axios.post("http://localhost:3000/todos", data).then(() => {
+    const newData = {
+      ...data,
+      completed: data.completed == "true" ? true : false,
+    };
+    axios.post("http://localhost:3000/todos", newData).then(() => {
       alert("them thanh cong");
     });
   };
@@ -25,12 +33,13 @@ function AddPage() {
             Text
           </label>
           <input
-            {...register("title")}
+            {...register("title", { required: "bat buoc phai nhap title" })}
             type="text"
             id="text"
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        {errors?.title && <span>{errors.title.message}</span>}
         <div>
           <label htmlFor="text" className="block font-medium mb-1">
             priority
