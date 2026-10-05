@@ -33,7 +33,13 @@ function AddPage() {
             Text
           </label>
           <input
-            {...register("title", { required: "bat buoc phai nhap title" })}
+            {...register("title", {
+              required: "bat buoc phai nhap title",
+              minLength: {
+                value: 3,
+                message: "nhap lon hon 3 ky tu",
+              },
+            })}
             type="text"
             id="text"
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
