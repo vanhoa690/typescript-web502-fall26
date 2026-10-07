@@ -23,11 +23,11 @@ function Header(props: Props) {
         </Link>
 
         <div className="hidden md:flex items-center space-x-8">
-          <Link to="#" className="hover:text-gray-200">
+          <Link to="/" className="hover:text-gray-200">
             Trang chủ
           </Link>
-          <Link to="#" className="hover:text-gray-200">
-            {label}
+          <Link to="/add" className="hover:text-gray-200">
+            Add
           </Link>
           <button onClick={() => changeLable("DSSV")}>Change Lable</button>
         </div>
