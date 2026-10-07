@@ -1,31 +1,32 @@
-# Lesson 10 - React + TypeScript: Edit Todo với React Hook Form
+# Lesson 10 - React + TypeScript: Edit Todo
 
 ## 1. Mục tiêu bài học
 
 Sau bài học này, sinh viên có thể:
 
 - Hiểu chức năng Edit Todo.
-- Hiểu API `PUT /todos/:id`.
-- Kết hợp React Hook Form với dữ liệu có sẵn.
-- Sử dụng `setValue()` để đưa dữ liệu Todo vào Form.
-- Sử dụng `reset()` để đổ dữ liệu Todo vào Form.
-- Chuyển Form từ chế độ Add sang Edit.
-- Sử dụng Axios để gọi `PUT`.
-- Cập nhật Todo trong State.
-- Hiểu luồng Edit Todo hoàn chỉnh.
+- Phân biệt `POST`, `PUT`, `PATCH`.
+- Hiểu luồng lấy dữ liệu Todo cần sửa.
+- Sử dụng React Hook Form cho Form Edit.
+- Đổ dữ liệu Todo cũ vào Form.
+- Hiểu và sử dụng `reset()` để đưa dữ liệu cũ vào Form.
+- Gửi `PUT /todos/:id` bằng Axios.
+- Cập nhật Todo trong State sau khi Edit.
+- Đóng Form Edit sau khi cập nhật thành công.
+- Tái sử dụng `TodoForm` cho cả Add và Edit.
 
 ---
 
-# 2. Ôn lại Lesson 9
+## 2. Ôn lại Lesson 9
 
-Ở Lesson 9, chúng ta đã làm:
+Lesson 9 đã có:
 
 ```text
 GET /todos
     ↓
 Axios
     ↓
-React State
+useState
     ↓
 Todo List
 ```
@@ -34,107 +35,153 @@ Thêm Todo:
 
 ```text
 Form
- ↓
+    ↓
 React Hook Form
- ↓
-Validate
- ↓
+    ↓
+register()
+    ↓
+validate
+    ↓
 handleSubmit()
- ↓
+    ↓
+onSubmit()
+    ↓
 axios.post()
- ↓
+    ↓
 POST /todos
- ↓
+    ↓
 onAdd()
- ↓
+    ↓
 setTodos()
+    ↓
+UI
 ```
 
 Xóa Todo:
 
 ```text
 Click Xóa
- ↓
+    ↓
 axios.delete()
- ↓
+    ↓
 DELETE /todos/:id
- ↓
+    ↓
 setTodos()
- ↓
+    ↓
 UI cập nhật
 ```
 
 Lesson 10 bổ sung:
 
 ```text
-Click Sửa
- ↓
-Chọn Todo
- ↓
-Đưa dữ liệu vào Form
- ↓
-React Hook Form
- ↓
+Edit Todo
+    ↓
+Lấy Todo cần sửa
+    ↓
+Đưa dữ liệu cũ vào Form
+    ↓
+User chỉnh sửa
+    ↓
 Validate
- ↓
+    ↓
 axios.put()
- ↓
+    ↓
 PUT /todos/:id
- ↓
-Cập nhật State
- ↓
+    ↓
+JSON Server
+    ↓
+Todo mới
+    ↓
+setTodos()
+    ↓
 UI cập nhật
 ```
 
 ---
 
-# 3. Edit Todo là gì?
+# 3. CRUD là gì?
 
-Edit Todo nghĩa là:
+Các thao tác cơ bản:
 
-```text
-Todo hiện tại
+| Chức năng     | HTTP   | API          |
+| ------------- | ------ | ------------ |
+| Lấy danh sách | GET    | `/todos`     |
+| Lấy một Todo  | GET    | `/todos/:id` |
+| Thêm          | POST   | `/todos`     |
+| Sửa           | PUT    | `/todos/:id` |
+| Xóa           | DELETE | `/todos/:id` |
 
-Học React       [Sửa] [Xóa]
-```
-
-Khi click:
-
-```text
-[Sửa]
-```
-
-Form sẽ lấy dữ liệu Todo:
+CRUD:
 
 ```text
-[ Học React ] [Cập nhật]
+C = Create
+R = Read
+U = Update
+D = Delete
 ```
 
-Người dùng sửa thành:
+Mapping:
 
 ```text
-[ Học React Hook Form ] [Cập nhật]
+Create → POST
+Read   → GET
+Update → PUT / PATCH
+Delete → DELETE
 ```
-
-Sau đó click:
-
-```text
-[Cập nhật]
-```
-
-Todo được cập nhật trên JSON Server.
 
 ---
 
-# 4. API Edit Todo
+# 4. POST và PUT khác nhau như thế nào?
 
-JSON Server hỗ trợ:
+Lesson 9:
 
-```text
-PUT /todos/:id
+```tsx
+axios.post("http://localhost:3000/todos", {
+  title: "Học React",
+  completed: false,
+});
 ```
 
-Ví dụ Todo:
+Mục đích:
+
+```text
+Tạo Todo mới
+```
+
+Lesson 10:
+
+```tsx
+axios.put("http://localhost:3000/todos/1", {
+  title: "Học React Hook Form",
+  completed: false,
+});
+```
+
+Mục đích:
+
+```text
+Cập nhật Todo có id = 1
+```
+
+Có thể nhớ:
+
+```text
+POST
+    ↓
+Tạo dữ liệu mới
+```
+
+```text
+PUT
+    ↓
+Cập nhật dữ liệu đã tồn tại
+```
+
+---
+
+# 5. API Edit Todo
+
+Giả sử JSON Server có:
 
 ```json
 {
@@ -144,114 +191,79 @@ Ví dụ Todo:
 }
 ```
 
-Muốn sửa Todo có `id = 1`:
+Muốn sửa Todo:
 
 ```text
 PUT /todos/1
-```
-
-Gửi dữ liệu:
-
-```json
-{
-  "title": "Học React Hook Form",
-  "completed": false
-}
 ```
 
 Axios:
 
 ```tsx
-axios.put("http://localhost:3000/todos/1", {
+await axios.put("http://localhost:3000/todos/1", {
   title: "Học React Hook Form",
   completed: false,
 });
 ```
 
----
+Sau khi thành công:
 
-# 5. PUT khác POST như thế nào?
-
-## POST
-
-POST dùng để:
-
-```text
-Tạo Todo mới
-```
-
-Ví dụ:
-
-```tsx
-axios.post("http://localhost:3000/todos", {
-  title: "Học React",
-  completed: false,
-});
-```
-
-Luồng:
-
-```text
-POST
- ↓
-Tạo Todo mới
-```
-
-## PUT
-
-PUT dùng để:
-
-```text
-Cập nhật Todo đã tồn tại
-```
-
-Ví dụ:
-
-```tsx
-axios.put("http://localhost:3000/todos/1", {
-  title: "Học React Hook Form",
-  completed: false,
-});
-```
-
-Luồng:
-
-```text
-PUT /todos/1
- ↓
-Tìm Todo id = 1
- ↓
-Cập nhật Todo
-```
-
-Có thể nhớ:
-
-```text
-POST → Thêm
-
-PUT → Sửa
-
-DELETE → Xóa
-
-GET → Lấy
+```json
+{
+  "id": "1",
+  "title": "Học React Hook Form",
+  "completed": false
+}
 ```
 
 ---
 
-# 6. Cấu trúc Project
+# 6. Vì sao Edit cần biết id?
 
-Tiếp tục Project của Lesson 9:
+Khi thêm Todo:
 
 ```text
-src
-├── components
-│   ├── TodoForm.tsx
-│   └── TodoItem.tsx
-│
-├── types
-│   └── todo.ts
-│
-└── App.tsx
+POST /todos
+```
+
+Không cần biết Todo ID.
+
+JSON Server tự tạo ID.
+
+Nhưng khi Edit:
+
+```text
+PUT /todos/:id
+```
+
+phải biết Todo nào cần sửa.
+
+Ví dụ:
+
+```text
+Todo 1
+Todo 2
+Todo 3
+```
+
+Click Edit Todo 2:
+
+```text
+PUT /todos/2
+```
+
+Click Edit Todo 3:
+
+```text
+PUT /todos/3
+```
+
+Vì vậy:
+
+```text
+Edit
+ ↓
+Cần id
 ```
 
 ---
@@ -274,15 +286,25 @@ export interface Todo {
 }
 ```
 
-Todo có:
+Nếu JSON Server đang dùng ID dạng number:
 
-```text
-id
-title
-completed
+```tsx
+export interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
 ```
 
-Ví dụ:
+Quan trọng:
+
+> Kiểu `id` phải thống nhất với dữ liệu thực tế của project.
+
+---
+
+# 8. Vấn đề khi Edit
+
+Giả sử Todo:
 
 ```json
 {
@@ -292,169 +314,331 @@ Ví dụ:
 }
 ```
 
----
-
-# 8. Vấn đề khi Edit Form
-
-Lesson 9 chúng ta có Form thêm:
+User click:
 
 ```text
-[ Nhập công việc... ] [Thêm]
+[Sửa]
 ```
 
-Khi Edit, chúng ta cần:
+Chúng ta muốn Form xuất hiện:
 
 ```text
-Todo:
-Học React
-
-        ↓
-
-Form:
-
-[ Học React ] [Cập nhật]
+┌───────────────────────────────┐
+│ [ Học React              ]    │
+│                               │
+│ [ Cập nhật ] [ Hủy ]          │
+└───────────────────────────────┘
 ```
 
-React Hook Form cần có cách đưa dữ liệu Todo vào Input.
-
-React Hook Form cung cấp:
-
-```tsx
-setValue();
-```
-
-và:
-
-```tsx
-reset();
-```
-
-Trong Lesson 10, chúng ta sẽ ưu tiên sử dụng:
-
-```tsx
-reset();
-```
-
-để đưa dữ liệu Todo vào Form.
-
----
-
-# 9. reset() có thể dùng để Edit
-
-Lesson 9 đã sử dụng:
-
-```tsx
-reset();
-```
-
-để xóa Form:
+Không được để Form rỗng:
 
 ```text
-[ Học React ] [Thêm]
-
-        ↓
-
-reset()
-
-        ↓
-
-[          ] [Thêm]
+[                         ]
 ```
 
-Nhưng `reset()` cũng có thể nhận dữ liệu:
-
-```tsx
-reset({
-  title: todo.title,
-});
-```
-
-Ví dụ Todo:
-
-```json
-{
-  "id": "1",
-  "title": "Học React",
-  "completed": false
-}
-```
-
-Có thể:
-
-```tsx
-reset({
-  title: todo.title,
-});
-```
-
-Form sẽ trở thành:
+Mà phải có dữ liệu Todo cũ:
 
 ```text
 [ Học React ]
 ```
 
-Đây là kỹ thuật quan trọng trong Edit Form.
+Đây là vấn đề quan trọng của Lesson 10.
 
 ---
 
-# 10. Chế độ Add và Edit
+# 9. React Hook Form và dữ liệu ban đầu
 
-TodoForm có thể hoạt động ở hai chế độ:
-
-```text
-ADD
-
-[ Nhập công việc... ] [Thêm]
-```
-
-và:
-
-```text
-EDIT
-
-[ Học React ] [Cập nhật]
-```
-
-Có thể hiểu:
-
-```text
-isEditing = false
-    ↓
-Chế độ thêm
-
-isEditing = true
-    ↓
-Chế độ sửa
-```
-
----
-
-# 11. TodoForm nhận Todo cần sửa
-
-App đang quản lý Todo.
-
-Khi click Sửa:
-
-```text
-App
- ↓
-Todo được chọn
- ↓
-TodoForm
-```
-
-TodoForm có thể nhận:
+React Hook Form có thể nhận dữ liệu ban đầu thông qua:
 
 ```tsx
-todo;
+defaultValues;
 ```
 
 Ví dụ:
 
 ```tsx
-interface TodoFormProps {
-  todo: Todo | null;
+const { register, handleSubmit } = useForm<TodoFormData>({
+  defaultValues: {
+    title: "Học React",
+  },
+});
+```
+
+Form sẽ hiển thị:
+
+```text
+[ Học React ]
+```
+
+Tuy nhiên Todo được chọn sau khi component đã render.
+
+Ví dụ:
+
+```text
+App render
+    ↓
+Chưa chọn Todo
+    ↓
+editingTodo = null
+```
+
+Sau đó:
+
+```text
+Click Edit
+    ↓
+editingTodo = Todo
+```
+
+Lúc này cần cập nhật dữ liệu trong Form.
+
+---
+
+# 10. reset() để đưa Todo cũ vào Form
+
+React Hook Form có:
+
+```tsx
+reset();
+```
+
+Lesson 9:
+
+```tsx
+reset();
+```
+
+để xóa Form.
+
+Lesson 10:
+
+```tsx
+reset({
+  title: todo.title,
+});
+```
+
+Ví dụ:
+
+```tsx
+const handleEdit = (todo: Todo) => {
+  reset({
+    title: todo.title,
+  });
+};
+```
+
+Nếu Todo:
+
+```json
+{
+  "id": "1",
+  "title": "Học React"
 }
+```
+
+thì:
+
+```tsx
+reset({
+  title: todo.title,
+});
+```
+
+sẽ đưa:
+
+```text
+Học React
+```
+
+vào Input.
+
+---
+
+# 11. reset() có hai cách sử dụng
+
+### Xóa Form
+
+```tsx
+reset();
+```
+
+Kết quả:
+
+```text
+[                     ]
+```
+
+### Đưa dữ liệu vào Form
+
+```tsx
+reset({
+  title: "Học React",
+});
+```
+
+Kết quả:
+
+```text
+[ Học React ]
+```
+
+Có thể nhớ:
+
+```text
+reset()
+
+    ↓
+
+Không truyền dữ liệu
+    ↓
+Xóa Form
+
+
+reset(data)
+
+    ↓
+
+Truyền dữ liệu
+    ↓
+Đưa dữ liệu vào Form
+```
+
+---
+
+# 12. setValue()
+
+React Hook Form cũng cung cấp:
+
+```tsx
+setValue();
+```
+
+Dùng để thay đổi giá trị của một field.
+
+Ví dụ:
+
+```tsx
+setValue("title", "Học TypeScript");
+```
+
+Input:
+
+```text
+[ Học TypeScript ]
+```
+
+Cú pháp:
+
+```tsx
+setValue(fieldName, value);
+```
+
+Ví dụ:
+
+```tsx
+setValue("title", todo.title);
+```
+
+Với Form Edit có nhiều field, có thể dùng nhiều `setValue()`:
+
+```tsx
+setValue("title", todo.title);
+setValue("description", todo.description);
+```
+
+Tuy nhiên trong Lesson 10:
+
+> Ưu tiên sử dụng `reset()` để đưa toàn bộ dữ liệu Todo vào Form.
+
+---
+
+# 13. Thiết kế lại TodoForm
+
+Thay vì chỉ:
+
+```tsx
+<TodoForm onAdd={addTodo} />
+```
+
+có thể thiết kế:
+
+```tsx
+<TodoForm
+  todo={editingTodo}
+  onAdd={addTodo}
+  onUpdate={updateTodo}
+  onCancel={cancelEdit}
+/>
+```
+
+TodoForm có hai mode:
+
+```text
+todo = null
+    ↓
+ADD MODE
+```
+
+hoặc:
+
+```text
+todo = Todo
+    ↓
+EDIT MODE
+```
+
+---
+
+# 14. TodoFormProps
+
+```tsx
+interface TodoFormProps {
+  todo?: Todo | null;
+  onAdd: (todo: Todo) => void;
+  onUpdate: (todo: Todo) => void;
+  onCancel: () => void;
+}
+```
+
+Giải thích:
+
+```text
+todo
+    ↓
+Todo đang được Edit
+
+onAdd
+    ↓
+Thêm Todo
+
+onUpdate
+    ↓
+Cập nhật Todo
+
+onCancel
+    ↓
+Hủy Edit
+```
+
+---
+
+# 15. Phân biệt Add Mode và Edit Mode
+
+Có thể kiểm tra:
+
+```tsx
+if (todo) {
+  // Edit
+} else {
+  // Add
+}
+```
+
+Hoặc:
+
+```tsx
+const isEditMode = Boolean(todo);
 ```
 
 Nếu:
@@ -466,7 +650,7 @@ todo = null;
 thì:
 
 ```text
-Chế độ Add
+isEditMode = false
 ```
 
 Nếu:
@@ -482,61 +666,135 @@ todo = {
 thì:
 
 ```text
-Chế độ Edit
+isEditMode = true
 ```
 
 ---
 
-# 12. Props cho TodoForm
+# 16. Hiển thị Button theo Mode
 
-Có thể thiết kế:
+Có thể dùng:
 
 ```tsx
-interface TodoFormProps {
-  todo: Todo | null;
-  onAdd: (todo: Todo) => void;
-  onUpdate: (todo: Todo) => void;
-  onCancelEdit: () => void;
+<button type="submit">{isEditMode ? "Cập nhật" : "Thêm"}</button>
+```
+
+Nếu Edit:
+
+```text
+[ Cập nhật ]
+```
+
+Nếu Add:
+
+```text
+[ Thêm ]
+```
+
+---
+
+# 17. Hiển thị nút Hủy
+
+Chỉ cần có khi Edit:
+
+```tsx
+{
+  isEditMode && (
+    <button type="button" onClick={onCancel}>
+      Hủy
+    </button>
+  );
 }
 ```
 
-Ý nghĩa:
+Khi Add:
 
 ```text
-todo
-↓
-Todo đang sửa
+[ Thêm ]
+```
 
-onAdd
-↓
-Thêm Todo
+Khi Edit:
 
-onUpdate
-↓
-Cập nhật Todo
-
-onCancelEdit
-↓
-Hủy Edit
+```text
+[ Cập nhật ] [ Hủy ]
 ```
 
 ---
 
-# 13. useEffect để đưa Todo vào Form
+# 18. useEffect để đưa Todo vào Form
 
-Khi Todo được chọn để Edit:
+Import:
 
-```text
-Click Sửa
- ↓
-todo thay đổi
- ↓
-TodoForm nhận Todo mới
- ↓
-đưa dữ liệu vào Input
+```tsx
+import { useEffect } from "react";
 ```
 
-Có thể sử dụng:
+Code:
+
+```tsx
+useEffect(() => {
+  if (todo) {
+    reset({
+      title: todo.title,
+    });
+  } else {
+    reset({
+      title: "",
+    });
+  }
+}, [todo, reset]);
+```
+
+Luồng:
+
+```text
+Click Edit
+    ↓
+App setEditingTodo()
+    ↓
+todo thay đổi
+    ↓
+TodoForm nhận Todo mới
+    ↓
+useEffect()
+    ↓
+reset()
+    ↓
+Form hiển thị dữ liệu cũ
+```
+
+---
+
+# 19. Vì sao cần useEffect?
+
+Ban đầu:
+
+```tsx
+todo = null;
+```
+
+Sau khi click Edit:
+
+```tsx
+todo = {
+  id: "1",
+  title: "Học React",
+};
+```
+
+Component nhận Props mới.
+
+Chúng ta muốn thực hiện:
+
+```tsx
+reset({
+  title: todo.title,
+});
+```
+
+khi `todo` thay đổi.
+
+Do đó:
 
 ```tsx
 useEffect(() => {
@@ -548,631 +806,9 @@ useEffect(() => {
 }, [todo, reset]);
 ```
 
-Ý nghĩa:
-
-```text
-todo có dữ liệu
- ↓
-reset()
- ↓
-Input hiển thị title
-```
-
-Nếu:
-
-```text
-todo = null
-```
-
-thì Form ở chế độ Add.
-
 ---
 
-# 14. Tại sao cần useEffect?
-
-`todo` là Props từ App.
-
-Khi người dùng click:
-
-```text
-Sửa Todo 1
-```
-
-App thay đổi:
-
-```tsx
-setEditingTodo(todo);
-```
-
-TodoForm nhận Todo mới.
-
-Cần phản ứng với sự thay đổi này:
-
-```text
-todo thay đổi
- ↓
-useEffect()
- ↓
-reset()
- ↓
-Input cập nhật
-```
-
-Vì vậy:
-
-```tsx
-useEffect();
-```
-
-phù hợp với trường hợp này.
-
----
-
-# 15. Tạo TodoForm hỗ trợ Edit
-
-Code cơ bản:
-
-```tsx
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import type { Todo } from "../types/todo";
-
-interface TodoFormData {
-  title: string;
-}
-
-interface TodoFormProps {
-  todo: Todo | null;
-  onAdd: (todo: Todo) => void;
-  onUpdate: (todo: Todo) => void;
-  onCancelEdit: () => void;
-}
-
-function TodoForm({ todo, onAdd, onUpdate, onCancelEdit }: TodoFormProps) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<TodoFormData>();
-
-  useEffect(() => {
-    if (todo) {
-      reset({
-        title: todo.title,
-      });
-    } else {
-      reset({
-        title: "",
-      });
-    }
-  }, [todo, reset]);
-
-  const onSubmit = (data: TodoFormData) => {
-    console.log(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <input
-        placeholder="Nhập công việc..."
-        {...register("title", {
-          required: "Vui lòng nhập công việc",
-          minLength: {
-            value: 3,
-            message: "Công việc phải có ít nhất 3 ký tự",
-          },
-          maxLength: {
-            value: 100,
-            message: "Công việc không được quá 100 ký tự",
-          },
-        })}
-      />
-
-      {errors.title && <p>{errors.title.message}</p>}
-
-      <button type="submit">{todo ? "Cập nhật" : "Thêm"}</button>
-
-      {todo && (
-        <button type="button" onClick={onCancelEdit}>
-          Hủy
-        </button>
-      )}
-    </form>
-  );
-}
-
-export default TodoForm;
-```
-
----
-
-# 16. Giải thích nút Submit
-
-Đoạn:
-
-```tsx
-{
-  todo ? "Cập nhật" : "Thêm";
-}
-```
-
-là toán tử 3 ngôi.
-
-Nếu:
-
-```tsx
-todo;
-```
-
-có dữ liệu:
-
-```text
-Cập nhật
-```
-
-Nếu:
-
-```tsx
-todo = null;
-```
-
-thì:
-
-```text
-Thêm
-```
-
-Có thể nhớ:
-
-```text
-todo có dữ liệu
-    ↓
-EDIT
-    ↓
-Cập nhật
-
-todo = null
-    ↓
-ADD
-    ↓
-Thêm
-```
-
----
-
-# 17. Xử lý Submit
-
-Trong `onSubmit()`:
-
-```tsx
-const onSubmit = async (data: TodoFormData) => {
-  if (todo) {
-    // Edit
-  } else {
-    // Add
-  }
-};
-```
-
-Luồng:
-
-```text
-Submit
- ↓
-Validate
- ↓
-onSubmit(data)
- ↓
-todo có dữ liệu?
- ↓
- ┌───────────────┐
- │               │
-Có              Không
- │               │
- ↓               ↓
-Edit             Add
- │               │
-PUT              POST
-```
-
----
-
-# 18. PUT Todo
-
-Nếu đang Edit:
-
-```tsx
-if (todo) {
-  const response = await axios.put<Todo>(
-    `http://localhost:3000/todos/${todo.id}`,
-    {
-      title: data.title,
-      completed: todo.completed,
-    },
-  );
-
-  onUpdate(response.data);
-}
-```
-
-Giải thích:
-
-```text
-todo.id
- ↓
-Xác định Todo cần sửa
-```
-
-Ví dụ:
-
-```text
-todo.id = 1
-```
-
-Axios gọi:
-
-```text
-PUT /todos/1
-```
-
-Dữ liệu:
-
-```json
-{
-  "title": "Học React Hook Form",
-  "completed": false
-}
-```
-
----
-
-# 19. POST và PUT trong cùng Form
-
-Code:
-
-```tsx
-const onSubmit = async (data: TodoFormData) => {
-  if (todo) {
-    // PUT
-  } else {
-    // POST
-  }
-};
-```
-
-Có thể hiểu:
-
-```text
-TodoForm
-    │
-    ↓
-Submit
-    │
-    ↓
-todo?
- ┌──┴──┐
- │     │
-Có    Không
- │     │
-PUT   POST
- │     │
-Edit  Add
-```
-
-Đây là cách xây dựng Form phổ biến trong ứng dụng thực tế.
-
----
-
-# 20. Cập nhật State sau khi Edit
-
-App có:
-
-```tsx
-const [todos, setTodos] = useState<Todo[]>([]);
-```
-
-Khi Todo được cập nhật:
-
-```text
-TodoForm
- ↓
-axios.put()
- ↓
-JSON Server
- ↓
-Todo mới
- ↓
-onUpdate(todo)
- ↓
-App
- ↓
-setTodos()
-```
-
-App cần tìm Todo cũ và thay bằng Todo mới.
-
-Có thể dùng:
-
-```tsx
-setTodos((prevTodos) =>
-  prevTodos.map((item) => (item.id === updatedTodo.id ? updatedTodo : item)),
-);
-```
-
----
-
-# 21. Giải thích map()
-
-Ví dụ:
-
-```tsx
-const todos = [
-  {
-    id: "1",
-    title: "Học React",
-    completed: false,
-  },
-  {
-    id: "2",
-    title: "Học TypeScript",
-    completed: false,
-  },
-];
-```
-
-Sửa Todo `id = 1`.
-
-Dùng:
-
-```tsx
-todos.map();
-```
-
-Có thể hiểu:
-
-```text
-Todo 1
- ↓
-id giống nhau?
- ↓
-Có → thay bằng Todo mới
-
-Todo 2
- ↓
-id giống nhau?
- ↓
-Không → giữ nguyên
-```
-
-Code:
-
-```tsx
-setTodos((prevTodos) =>
-  prevTodos.map((item) => (item.id === updatedTodo.id ? updatedTodo : item)),
-);
-```
-
----
-
-# 22. Hàm handleUpdate trong App
-
-App:
-
-```tsx
-const handleUpdate = (updatedTodo: Todo) => {
-  setTodos((prevTodos) =>
-    prevTodos.map((item) => (item.id === updatedTodo.id ? updatedTodo : item)),
-  );
-};
-```
-
-Sau đó truyền xuống:
-
-```tsx
-<TodoForm
-  todo={editingTodo}
-  onAdd={handleAdd}
-  onUpdate={handleUpdate}
-  onCancelEdit={handleCancelEdit}
-/>
-```
-
----
-
-# 23. Chọn Todo để Edit
-
-Trong TodoItem có nút:
-
-```text
-[Sửa]
-```
-
-Khi click:
-
-```tsx
-onEdit(todo);
-```
-
-Ví dụ:
-
-```tsx
-<button onClick={() => onEdit(todo)}>Sửa</button>
-```
-
-TodoItem cần nhận:
-
-```tsx
-interface TodoItemProps {
-  todo: Todo;
-  onDelete: (id: string) => void;
-  onEdit: (todo: Todo) => void;
-}
-```
-
----
-
-# 24. TodoItem hoàn chỉnh
-
-```tsx
-import type { Todo } from "../types/todo";
-
-interface TodoItemProps {
-  todo: Todo;
-  onDelete: (id: string) => void;
-  onEdit: (todo: Todo) => void;
-}
-
-function TodoItem({ todo, onDelete, onEdit }: TodoItemProps) {
-  return (
-    <div>
-      <span>{todo.title}</span>
-
-      <button onClick={() => onEdit(todo)}>Sửa</button>
-
-      <button onClick={() => onDelete(todo.id)}>Xóa</button>
-    </div>
-  );
-}
-
-export default TodoItem;
-```
-
----
-
-# 25. State editingTodo
-
-Trong App:
-
-```tsx
-const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-```
-
-Ý nghĩa:
-
-```text
-null
- ↓
-Không sửa Todo nào
-
-Todo object
- ↓
-Đang sửa Todo đó
-```
-
-Ví dụ:
-
-```tsx
-setEditingTodo(todo);
-```
-
-Sau khi click Sửa:
-
-```text
-editingTodo
- ↓
-{
-  id: "1",
-  title: "Học React",
-  completed: false
-}
-```
-
----
-
-# 26. Hàm handleEdit
-
-App:
-
-```tsx
-const handleEdit = (todo: Todo) => {
-  setEditingTodo(todo);
-};
-```
-
-Luồng:
-
-```text
-Click Sửa
- ↓
-handleEdit(todo)
- ↓
-setEditingTodo(todo)
- ↓
-App render lại
- ↓
-TodoForm nhận todo
- ↓
-reset()
- ↓
-Input hiển thị dữ liệu
-```
-
----
-
-# 27. Hàm Cancel Edit
-
-Khi click:
-
-```text
-Hủy
-```
-
-chúng ta cần:
-
-```tsx
-setEditingTodo(null);
-```
-
-Tạo function:
-
-```tsx
-const handleCancelEdit = () => {
-  setEditingTodo(null);
-};
-```
-
-Luồng:
-
-```text
-Click Hủy
- ↓
-setEditingTodo(null)
- ↓
-TodoForm
- ↓
-Chuyển về Add
-```
-
----
-
-# 28. handleUpdate hoàn chỉnh
-
-```tsx
-const handleUpdate = (updatedTodo: Todo) => {
-  setTodos((prevTodos) =>
-    prevTodos.map((item) => (item.id === updatedTodo.id ? updatedTodo : item)),
-  );
-
-  setEditingTodo(null);
-};
-```
-
-Sau khi cập nhật:
-
-```text
-Todo được sửa
- ↓
-State cập nhật
- ↓
-editingTodo = null
- ↓
-Form trở về Add
-```
-
----
-
-# 29. TodoForm hoàn chỉnh
+# 20. TodoForm hoàn chỉnh
 
 ```tsx
 import axios from "axios";
@@ -1185,19 +821,21 @@ interface TodoFormData {
 }
 
 interface TodoFormProps {
-  todo: Todo | null;
+  todo?: Todo | null;
   onAdd: (todo: Todo) => void;
   onUpdate: (todo: Todo) => void;
-  onCancelEdit: () => void;
+  onCancel: () => void;
 }
 
-function TodoForm({ todo, onAdd, onUpdate, onCancelEdit }: TodoFormProps) {
+function TodoForm({ todo, onAdd, onUpdate, onCancel }: TodoFormProps) {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<TodoFormData>();
+
+  const isEditMode = Boolean(todo);
 
   useEffect(() => {
     if (todo) {
@@ -1217,8 +855,8 @@ function TodoForm({ todo, onAdd, onUpdate, onCancelEdit }: TodoFormProps) {
         const response = await axios.put<Todo>(
           `http://localhost:3000/todos/${todo.id}`,
           {
+            ...todo,
             title: data.title,
-            completed: todo.completed,
           },
         );
 
@@ -1230,9 +868,8 @@ function TodoForm({ todo, onAdd, onUpdate, onCancelEdit }: TodoFormProps) {
         });
 
         onAdd(response.data);
+        reset();
       }
-
-      reset();
     } catch (error) {
       console.error(error);
     }
@@ -1257,10 +894,10 @@ function TodoForm({ todo, onAdd, onUpdate, onCancelEdit }: TodoFormProps) {
 
       {errors.title && <p>{errors.title.message}</p>}
 
-      <button type="submit">{todo ? "Cập nhật" : "Thêm"}</button>
+      <button type="submit">{isEditMode ? "Cập nhật" : "Thêm"}</button>
 
-      {todo && (
-        <button type="button" onClick={onCancelEdit}>
+      {isEditMode && (
+        <button type="button" onClick={onCancel}>
           Hủy
         </button>
       )}
@@ -1273,9 +910,321 @@ export default TodoForm;
 
 ---
 
-# 30. App hoàn chỉnh
+# 21. Phân tích onSubmit()
 
-Ví dụ App:
+Đây là phần quan trọng nhất:
+
+```tsx
+const onSubmit = async (data: TodoFormData) => {
+```
+
+Nếu:
+
+```tsx
+todo;
+```
+
+tồn tại:
+
+```tsx
+if (todo) {
+```
+
+thì đang Edit.
+
+API:
+
+```tsx
+axios.put(
+  `http://localhost:3000/todos/${todo.id}`,
+  ...
+);
+```
+
+Nếu không có Todo:
+
+```text
+todo = null
+```
+
+thì:
+
+```text
+Add
+```
+
+và sử dụng:
+
+```tsx
+axios.post();
+```
+
+---
+
+# 22. PUT Todo
+
+```tsx
+const response = await axios.put<Todo>(
+  `http://localhost:3000/todos/${todo.id}`,
+  {
+    ...todo,
+    title: data.title,
+  },
+);
+```
+
+Ví dụ Todo cũ:
+
+```json
+{
+  "id": "1",
+  "title": "Học React",
+  "completed": false
+}
+```
+
+User sửa thành:
+
+```text
+Học React Hook Form
+```
+
+Request:
+
+```http
+PUT /todos/1
+```
+
+Body:
+
+```json
+{
+  "id": "1",
+  "title": "Học React Hook Form",
+  "completed": false
+}
+```
+
+---
+
+# 23. Vì sao sử dụng ...todo?
+
+Code:
+
+```tsx
+{
+  ...todo,
+  title: data.title,
+}
+```
+
+Giả sử:
+
+```json
+{
+  "id": "1",
+  "title": "Học React",
+  "completed": false
+}
+```
+
+Spread:
+
+```tsx
+...todo
+```
+
+giữ lại:
+
+```text
+id
+completed
+```
+
+Sau đó:
+
+```tsx
+title: data.title;
+```
+
+ghi đè `title`.
+
+Kết quả:
+
+```json
+{
+  "id": "1",
+  "title": "Học React Hook Form",
+  "completed": false
+}
+```
+
+---
+
+# 24. onUpdate()
+
+Sau khi PUT thành công:
+
+```tsx
+onUpdate(response.data);
+```
+
+TodoForm không tự quản lý:
+
+```text
+todos
+```
+
+TodoForm chỉ thông báo cho App:
+
+```text
+Todo đã được cập nhật
+```
+
+thông qua:
+
+```tsx
+onUpdate();
+```
+
+---
+
+# 25. App quản lý todos
+
+Trong App:
+
+```tsx
+const [todos, setTodos] = useState<Todo[]>([]);
+```
+
+App là nơi sở hữu danh sách.
+
+App chịu trách nhiệm:
+
+```text
+GET
+POST
+UPDATE STATE
+DELETE
+```
+
+TodoForm chịu trách nhiệm:
+
+```text
+Form
+Validate
+POST
+PUT
+```
+
+---
+
+# 26. Hàm updateTodo()
+
+Trong `App.tsx`:
+
+```tsx
+const updateTodo = (updatedTodo: Todo) => {
+  setTodos((currentTodos) =>
+    currentTodos.map((todo) =>
+      todo.id === updatedTodo.id ? updatedTodo : todo,
+    ),
+  );
+};
+```
+
+Luồng:
+
+```text
+todos hiện tại
+    ↓
+map()
+    ↓
+Tìm Todo cùng id
+    ↓
+Nếu đúng
+    ↓
+Thay Todo cũ bằng Todo mới
+```
+
+---
+
+# 27. Ví dụ updateTodo()
+
+Danh sách ban đầu:
+
+```json
+[
+  {
+    "id": "1",
+    "title": "Học React",
+    "completed": false
+  },
+  {
+    "id": "2",
+    "title": "Học TypeScript",
+    "completed": false
+  }
+]
+```
+
+Todo mới:
+
+```json
+{
+  "id": "1",
+  "title": "Học React Hook Form",
+  "completed": false
+}
+```
+
+`map()`:
+
+```text
+Todo 1
+    ↓
+id giống nhau
+    ↓
+thay bằng Todo mới
+
+Todo 2
+    ↓
+id khác
+    ↓
+giữ nguyên
+```
+
+---
+
+# 28. setTodos() và map()
+
+```tsx
+setTodos((currentTodos) =>
+  currentTodos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+);
+```
+
+Có thể đọc:
+
+```text
+currentTodos
+    ↓
+map từng Todo
+    ↓
+id giống updatedTodo.id ?
+       ↙       ↘
+     Có         Không
+      ↓           ↓
+updatedTodo    todo cũ
+```
+
+Đây là kỹ thuật quan trọng khi cập nhật State trong React.
+
+---
+
+# 29. App hoàn chỉnh
+
+`App.tsx`:
 
 ```tsx
 import { useEffect, useState } from "react";
@@ -1304,15 +1253,29 @@ function App() {
     getTodos();
   }, []);
 
-  const handleAdd = (todo: Todo) => {
-    setTodos((prevTodos) => [...prevTodos, todo]);
+  const addTodo = (todo: Todo) => {
+    setTodos((currentTodos) => [...currentTodos, todo]);
   };
 
-  const handleDelete = async (id: string) => {
+  const updateTodo = (updatedTodo: Todo) => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === updatedTodo.id ? updatedTodo : todo,
+      ),
+    );
+
+    setEditingTodo(null);
+  };
+
+  const deleteTodo = async (id: string) => {
     try {
       await axios.delete(`http://localhost:3000/todos/${id}`);
 
-      setTodos((prevTodos) => prevTodos.filter((item) => item.id !== id));
+      setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+
+      if (editingTodo?.id === id) {
+        setEditingTodo(null);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -1322,17 +1285,7 @@ function App() {
     setEditingTodo(todo);
   };
 
-  const handleUpdate = (updatedTodo: Todo) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((item) =>
-        item.id === updatedTodo.id ? updatedTodo : item,
-      ),
-    );
-
-    setEditingTodo(null);
-  };
-
-  const handleCancelEdit = () => {
+  const cancelEdit = () => {
     setEditingTodo(null);
   };
 
@@ -1342,9 +1295,9 @@ function App() {
 
       <TodoForm
         todo={editingTodo}
-        onAdd={handleAdd}
-        onUpdate={handleUpdate}
-        onCancelEdit={handleCancelEdit}
+        onAdd={addTodo}
+        onUpdate={updateTodo}
+        onCancel={cancelEdit}
       />
 
       <hr />
@@ -1354,7 +1307,7 @@ function App() {
           key={todo.id}
           todo={todo}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={deleteTodo}
         />
       ))}
     </div>
@@ -1366,26 +1319,46 @@ export default App;
 
 ---
 
-# 31. Giao diện sau khi chạy
+# 30. TodoItem
 
-Ban đầu:
+`TodoItem.tsx`:
+
+```tsx
+import type { Todo } from "../types/todo";
+
+interface TodoItemProps {
+  todo: Todo;
+  onEdit: (todo: Todo) => void;
+  onDelete: (id: string) => void;
+}
+
+function TodoItem({ todo, onEdit, onDelete }: TodoItemProps) {
+  return (
+    <div>
+      <span>{todo.title}</span>
+
+      <button type="button" onClick={() => onEdit(todo)}>
+        Sửa
+      </button>
+
+      <button type="button" onClick={() => onDelete(todo.id)}>
+        Xóa
+      </button>
+    </div>
+  );
+}
+
+export default TodoItem;
+```
+
+---
+
+# 31. Luồng khi click Sửa
+
+Giả sử:
 
 ```text
-----------------------------------
-           TODO LIST
-----------------------------------
-
-[ Nhập công việc... ] [Thêm]
-
-----------------------------------
-
-□ Học React                [Sửa] [Xóa]
-
-□ Học TypeScript           [Sửa] [Xóa]
-
-☑ Làm bài tập              [Sửa] [Xóa]
-
-----------------------------------
+Học React
 ```
 
 Click:
@@ -1394,524 +1367,13 @@ Click:
 [Sửa]
 ```
 
-Ví dụ Todo:
-
-```text
-Học React
-```
-
-Form trở thành:
-
-```text
-[ Học React ] [Cập nhật] [Hủy]
-```
-
-Sửa:
-
-```text
-[ Học React Hook Form ] [Cập nhật] [Hủy]
-```
-
-Click:
-
-```text
-[Cập nhật]
-```
-
-Kết quả:
-
-```text
-□ Học React Hook Form     [Sửa] [Xóa]
-```
-
----
-
-# 32. Luồng Edit Todo
-
-Đây là phần cần nhớ:
-
-```text
-Click Sửa
-    ↓
-handleEdit(todo)
-    ↓
-setEditingTodo(todo)
-    ↓
-TodoForm nhận todo
-    ↓
-useEffect()
-    ↓
-reset({
-  title: todo.title
-})
-    ↓
-Input hiển thị Todo
-    ↓
-User sửa
-    ↓
-handleSubmit()
-    ↓
-Validate
-    ↓
-onSubmit(data)
-    ↓
-axios.put()
-    ↓
-PUT /todos/:id
-    ↓
-JSON Server
-    ↓
-Todo mới
-    ↓
-onUpdate()
-    ↓
-setTodos()
-    ↓
-setEditingTodo(null)
-    ↓
-React render
-```
-
----
-
-# 33. So sánh Add và Edit
-
-| Chức năng       | Add       | Edit         |
-| --------------- | --------- | ------------ |
-| Form            | TodoForm  | TodoForm     |
-| React Hook Form | Có        | Có           |
-| Validate        | Có        | Có           |
-| API             | POST      | PUT          |
-| URL             | `/todos`  | `/todos/:id` |
-| State           | Thêm Todo | Thay Todo    |
-| Button          | Thêm      | Cập nhật     |
-
-Có thể nhớ:
-
-```text
-ADD
-
-POST /todos
-
-EDIT
-
-PUT /todos/:id
-```
-
----
-
-# 34. Vì sao không tạo EditForm riêng?
-
-Có thể tạo:
-
-```text
-TodoForm.tsx
-TodoEditForm.tsx
-```
-
-Nhưng trong bài học này chúng ta sử dụng một Form:
-
-```text
-TodoForm
-```
-
-và thay đổi theo:
+TodoItem gọi:
 
 ```tsx
-todo;
+onEdit(todo);
 ```
 
-Nếu:
-
-```text
-todo = null
-```
-
-→ Add.
-
-Nếu:
-
-```text
-todo có dữ liệu
-```
-
-→ Edit.
-
-Cách này giúp giảm code trùng lặp.
-
----
-
-# 35. Một Form - Hai chức năng
-
-Có thể hình dung:
-
-```text
-                 TodoForm
-                    │
-              todo có dữ liệu?
-               /           \
-             Không          Có
-               ↓             ↓
-              ADD           EDIT
-               ↓             ↓
-             POST           PUT
-               ↓             ↓
-          /todos        /todos/:id
-```
-
----
-
-# 36. `reset()` trong Edit
-
-Có hai cách sử dụng:
-
-## Xóa Form
-
-```tsx
-reset();
-```
-
-Kết quả:
-
-```text
-[ Học React ]
-
-     ↓
-
-[          ]
-```
-
-## Đổ dữ liệu vào Form
-
-```tsx
-reset({
-  title: todo.title,
-});
-```
-
-Kết quả:
-
-```text
-todo.title
-    ↓
-reset()
-    ↓
-[ Học React ]
-```
-
-Đây là kiến thức quan trọng khi làm Form Edit.
-
----
-
-# 37. `setValue()` là gì?
-
-Ngoài `reset()`, React Hook Form có:
-
-```tsx
-setValue();
-```
-
-Ví dụ:
-
-```tsx
-const { setValue } = useForm<TodoFormData>();
-```
-
-Có thể:
-
-```tsx
-setValue("title", todo.title);
-```
-
-Ý nghĩa:
-
-```text
-title
- ↓
-todo.title
-```
-
-Ví dụ:
-
-```tsx
-setValue("title", "Học React");
-```
-
-Input sẽ có:
-
-```text
-[ Học React ]
-```
-
-Trong bài này nên ưu tiên:
-
-```tsx
-reset();
-```
-
-vì chúng ta muốn đưa dữ liệu Todo vào toàn bộ Form.
-
----
-
-# 38. `reset()` và `setValue()`
-
-| Function      | Mục đích             |
-| ------------- | -------------------- |
-| `reset()`     | Đặt lại toàn bộ Form |
-| `reset(data)` | Đưa dữ liệu vào Form |
-| `setValue()`  | Thay đổi một field   |
-
-Ví dụ:
-
-```tsx
-reset({
-  title: todo.title,
-});
-```
-
-Hoặc:
-
-```tsx
-setValue("title", todo.title);
-```
-
----
-
-# 39. Validate khi Edit
-
-Edit vẫn phải Validate.
-
-Ví dụ:
-
-```text
-Todo cũ:
-
-Học React
-```
-
-Người dùng xóa hết:
-
-```text
-[                 ]
-```
-
-Click:
-
-```text
-[Cập nhật]
-```
-
-React Hook Form kiểm tra:
-
-```text
-required
- ↓
-Có lỗi
- ↓
-Không gọi axios.put()
-```
-
-Hiển thị:
-
-```text
-Vui lòng nhập công việc
-```
-
-Luồng:
-
-```text
-Edit
- ↓
-Submit
- ↓
-Validate
- ↓
-Có lỗi?
- ↓
-Có → errors
- ↓
-Không gửi PUT
-```
-
----
-
-# 40. Không được bỏ Validate khi Edit
-
-Một lỗi thường gặp:
-
-```tsx
-if (todo) {
-  axios.put(...);
-}
-```
-
-nhưng không có Rule:
-
-```tsx
-required;
-```
-
-Điều này có thể gửi dữ liệu:
-
-```json
-{
-  "title": ""
-}
-```
-
-Vì vậy Form Edit vẫn cần:
-
-```tsx
-register("title", {
-  required: "Vui lòng nhập công việc",
-  minLength: {
-    value: 3,
-    message: "Công việc phải có ít nhất 3 ký tự",
-  },
-});
-```
-
----
-
-# 41. Tại sao cần `type="button"` cho nút Hủy?
-
-Form:
-
-```tsx
-<form>
-```
-
-Nếu button:
-
-```tsx
-<button>Hủy</button>
-```
-
-mặc định có thể được hiểu là:
-
-```text
-submit
-```
-
-Vì vậy nút Hủy nên viết:
-
-```tsx
-<button type="button">Hủy</button>
-```
-
-Khi đó:
-
-```text
-Hủy
- ↓
-Không Submit Form
- ↓
-Chỉ chạy onCancelEdit()
-```
-
----
-
-# 42. Xử lý lỗi API
-
-PUT nên có:
-
-```tsx
-try {
-  const response = await axios.put(...);
-
-  onUpdate(response.data);
-} catch (error) {
-  console.error(error);
-}
-```
-
-Luồng:
-
-```text
-PUT
- ↓
-Thành công?
- ├── Có → onUpdate()
- │
- └── Không → catch
-```
-
-Không nên cập nhật State trước khi API thành công.
-
----
-
-# 43. Không nên làm như thế này
-
-Không nên:
-
-```tsx
-setTodos(...);
-await axios.put(...);
-```
-
-Vì:
-
-```text
-State cập nhật
- ↓
-API có thể thất bại
-```
-
-UI có thể hiển thị dữ liệu mới nhưng Server chưa cập nhật.
-
-Nên:
-
-```tsx
-const response = await axios.put(...);
-
-setTodos(...);
-```
-
-Luồng đúng:
-
-```text
-PUT
- ↓
-Server thành công
- ↓
-Todo mới
- ↓
-setTodos()
-```
-
----
-
-# 44. Bài tập thực hành
-
-## Bài 1 - Thêm nút Sửa
-
-Trong `TodoItem.tsx`, thêm:
-
-```text
-[Sửa]
-```
-
-Khi click:
-
-```text
-onEdit(todo)
-```
-
----
-
-## Bài 2 - Tạo editingTodo
-
-Trong App:
-
-```tsx
-const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-```
-
----
-
-## Bài 3 - Chọn Todo để Edit
-
-Tạo:
+App:
 
 ```tsx
 const handleEdit = (todo: Todo) => {
@@ -1919,23 +1381,35 @@ const handleEdit = (todo: Todo) => {
 };
 ```
 
-Truyền:
+State:
 
-```tsx
-<TodoForm todo={editingTodo} />
+```text
+editingTodo
 ```
 
----
+thay đổi:
 
-## Bài 4 - Hiển thị Todo lên Form
+```text
+null
 
-Sử dụng:
+↓
+
+Todo
+```
+
+TodoForm nhận:
+
+```tsx
+todo = { editingTodo };
+```
+
+Sau đó:
 
 ```tsx
 useEffect();
 ```
 
-và:
+chạy:
 
 ```tsx
 reset({
@@ -1943,424 +1417,140 @@ reset({
 });
 ```
 
-Kết quả:
+Form:
 
 ```text
-Click Sửa
-
-        ↓
-
-[ Nội dung Todo ]
+[ Học React ] [Cập nhật] [Hủy]
 ```
 
 ---
 
-## Bài 5 - Đổi Button
+# 32. Luồng sau khi click Cập nhật
 
-Nếu đang Edit:
+User sửa:
+
+```text
+Học React
+```
+
+thành:
+
+```text
+Học React Hook Form
+```
+
+Click:
 
 ```text
 [Cập nhật]
 ```
 
-Nếu đang Add:
+Luồng:
 
 ```text
-[Thêm]
-```
-
-Sử dụng:
-
-```tsx
-{
-  todo ? "Cập nhật" : "Thêm";
-}
-```
-
----
-
-## Bài 6 - PUT Todo
-
-Khi Edit:
-
-```tsx
-axios.put(`http://localhost:3000/todos/${todo.id}`, {
-  title: data.title,
-  completed: todo.completed,
-});
-```
-
----
-
-## Bài 7 - Cập nhật State
-
-Sau khi PUT thành công:
-
-```tsx
-setTodos((prevTodos) =>
-  prevTodos.map((item) => (item.id === updatedTodo.id ? updatedTodo : item)),
-);
+Click Cập nhật
+       ↓
+handleSubmit()
+       ↓
+Validate
+       ↓
+onSubmit(data)
+       ↓
+todo tồn tại?
+       ↓
+YES
+       ↓
+axios.put()
+       ↓
+PUT /todos/1
+       ↓
+JSON Server
+       ↓
+response.data
+       ↓
+onUpdate()
+       ↓
+updateTodo()
+       ↓
+setTodos()
+       ↓
+setEditingTodo(null)
+       ↓
+React render
 ```
 
 ---
 
-## Bài 8 - Nút Hủy
+# 33. Hủy Edit
 
-Thêm:
+Khi đang Edit:
+
+```text
+[ Học React Hook Form ]
+
+[ Cập nhật ] [ Hủy ]
+```
+
+Click:
 
 ```text
 [Hủy]
 ```
 
-Khi click:
+TodoForm gọi:
 
 ```tsx
-setEditingTodo(null);
+onCancel();
 ```
 
-Form trở lại:
+App:
+
+```tsx
+const cancelEdit = () => {
+  setEditingTodo(null);
+};
+```
+
+Form trở về:
 
 ```text
-[ Nhập công việc... ] [Thêm]
+[                    ] [Thêm]
 ```
 
 ---
 
-# 45. Bài tập nâng cao
-
-Hoàn thiện Todo App:
+# 34. Hai Mode của TodoForm
 
 ```text
-------------------------------------------
-               TODO LIST
-------------------------------------------
-
-[ Nhập công việc................ ] [Thêm]
-
-------------------------------------------
-
-□ Học React                [Sửa] [Xóa]
-
-□ Học TypeScript           [Sửa] [Xóa]
-
-☑ Làm bài tập              [Sửa] [Xóa]
-
-------------------------------------------
-```
-
-Click Sửa:
-
-```text
-------------------------------------------
-
-[ Học React ] [Cập nhật] [Hủy]
-
-------------------------------------------
-```
-
-Sau khi sửa:
-
-```text
-------------------------------------------
-
-□ Học React Hook Form     [Sửa] [Xóa]
-
-□ Học TypeScript          [Sửa] [Xóa]
-
-☑ Làm bài tập             [Sửa] [Xóa]
-
-------------------------------------------
-```
-
-Yêu cầu:
-
-```text
-GET       → lấy Todo
-POST      → thêm Todo
-PUT       → sửa Todo
-DELETE    → xóa Todo
-
-React Hook Form
-      ↓
-register()
-      ↓
-validate
-      ↓
-handleSubmit()
-      ↓
-onSubmit()
-      ↓
-POST / PUT
-      ↓
-JSON Server
-      ↓
-setTodos()
-      ↓
-UI
+                TodoForm
+                   │
+          ┌────────┴────────┐
+          │                 │
+          ↓                 ↓
+       ADD MODE          EDIT MODE
+          │                 │
+       todo=null         todo=Todo
+          │                 │
+          ↓                 ↓
+      axios.post()       axios.put()
+          │                 │
+          ↓                 ↓
+        onAdd()          onUpdate()
+          │                 │
+          ↓                 ↓
+      setTodos()         setTodos()
 ```
 
 ---
 
-# 46. Câu hỏi ôn tập
+# 35. GET, POST, PUT, DELETE
 
-## Câu 1
-
-API nào dùng để sửa Todo?
-
-```text
-A. GET
-B. POST
-C. PUT
-D. DELETE
-```
-
-Đáp án:
-
-```text
-C. PUT
-```
-
----
-
-## Câu 2
-
-API Edit Todo có dạng gì?
-
-```text
-PUT /todos/:id
-```
-
-Ví dụ:
-
-```text
-PUT /todos/1
-```
-
----
-
-## Câu 3
-
-`editingTodo` dùng để làm gì?
-
-```text
-Lưu Todo đang được chọn để sửa.
-```
-
----
-
-## Câu 4
-
-Khi:
-
-```tsx
-editingTodo = null;
-```
-
-Form ở chế độ nào?
-
-```text
-ADD
-```
-
----
-
-## Câu 5
-
-Khi:
-
-```tsx
-editingTodo;
-```
-
-có dữ liệu thì Form ở chế độ nào?
-
-```text
-EDIT
-```
-
----
-
-## Câu 6
-
-Function nào đưa dữ liệu vào Form?
-
-Có thể sử dụng:
-
-```tsx
-reset();
-```
-
-hoặc:
-
-```tsx
-setValue();
-```
-
----
-
-## Câu 7
-
-Tại sao dùng:
-
-```tsx
-useEffect();
-```
-
-khi Edit?
-
-Vì khi Todo được chọn thay đổi:
-
-```text
-todo thay đổi
- ↓
-useEffect()
- ↓
-reset()
- ↓
-Form cập nhật
-```
-
----
-
-## Câu 8
-
-Sau khi PUT thành công, tại sao phải cập nhật State?
-
-Vì React cần biết dữ liệu Todo đã thay đổi để render lại UI.
-
----
-
-# 47. Kiến thức cần nhớ
-
-### GET
-
-```tsx
-axios.get("/todos");
-```
-
-### POST
-
-```tsx
-axios.post("/todos", data);
-```
-
-### PUT
-
-```tsx
-axios.put(`/todos/${id}`, data);
-```
-
-### DELETE
-
-```tsx
-axios.delete(`/todos/${id}`);
-```
-
-### React Hook Form
-
-```tsx
-const {
-  register,
-  handleSubmit,
-  reset,
-  formState: { errors },
-} = useForm<FormData>();
-```
-
-### Register
-
-```tsx
-<input {...register("title")} />
-```
-
-### Validate
-
-```tsx
-register("title", {
-  required: "Bắt buộc nhập",
-});
-```
-
-### Submit
-
-```tsx
-<form onSubmit={handleSubmit(onSubmit)}>
-```
-
-### Đổ dữ liệu vào Form
-
-```tsx
-reset({
-  title: todo.title,
-});
-```
-
-### Cập nhật State
-
-```tsx
-setTodos((prevTodos) =>
-  prevTodos.map((item) => (item.id === updatedTodo.id ? updatedTodo : item)),
-);
-```
-
----
-
-# 48. Tổng kết Lesson 10
-
-Lesson 10 bổ sung chức năng:
-
-```text
-EDIT TODO
-```
-
-Luồng quan trọng nhất:
-
-```text
-Click Sửa
-    ↓
-setEditingTodo(todo)
-    ↓
-TodoForm
-    ↓
-useEffect()
-    ↓
-reset()
-    ↓
-Hiển thị dữ liệu
-    ↓
-User sửa
-    ↓
-handleSubmit()
-    ↓
-Validate
-    ↓
-onSubmit()
-    ↓
-axios.put()
-    ↓
-PUT /todos/:id
-    ↓
-JSON Server
-    ↓
-Todo mới
-    ↓
-onUpdate()
-    ↓
-setTodos()
-    ↓
-setEditingTodo(null)
-    ↓
-React render lại UI
-```
-
-## CRUD sau Lesson 10
-
-Sinh viên đã có:
+Sau Lesson 10:
 
 ```text
 GET
  ↓
-Xem Todo
+Lấy Todo
 
 POST
  ↓
@@ -2375,70 +1565,1030 @@ DELETE
 Xóa Todo
 ```
 
-Có thể nhớ:
+CRUD:
 
 ```text
-CRUD
-
-C → Create → POST
-R → Read   → GET
-U → Update → PUT
-D → Delete → DELETE
+             TODO
+               │
+      ┌────────┼────────┐
+      │        │        │
+     GET      POST     PUT
+      │        │        │
+     Read    Create   Update
+      │        │        │
+      └────────┼────────┘
+               │
+             DELETE
+               │
+             Delete
 ```
 
 ---
 
-# 49. Kiến thức trọng tâm
+# 36. PUT và PATCH
 
-Sau Lesson 10, sinh viên cần hiểu được:
+Ngoài PUT còn có:
 
 ```text
-React
-  ↓
-useState
-  ↓
-Todo List
-  ↓
-TodoForm
-  ↓
-React Hook Form
-  ↓
-register()
-  ↓
-Validate
-  ↓
-handleSubmit()
-  ↓
-POST / PUT
-  ↓
-JSON Server
-  ↓
-setTodos()
-  ↓
-UI
+PATCH
 ```
 
-Đặc biệt cần nhớ:
+PUT:
+
+```tsx
+axios.put("/todos/1", {
+  id: "1",
+  title: "Học React",
+  completed: false,
+});
+```
+
+PATCH:
+
+```tsx
+axios.patch("/todos/1", {
+  title: "Học React Hook Form",
+});
+```
+
+Hiểu đơn giản:
+
+```text
+PUT
+ ↓
+Cập nhật toàn bộ Resource
+```
+
+```text
+PATCH
+ ↓
+Cập nhật một phần Resource
+```
+
+Trong Lesson 10 sử dụng:
+
+```text
+PUT
+```
+
+để hiểu Update trong CRUD.
+
+---
+
+# 37. Tại sao không gọi GET lại sau PUT?
+
+Có hai cách.
+
+### Cách 1
+
+```text
+PUT
+ ↓
+GET /todos
+ ↓
+setTodos()
+```
+
+### Cách 2
+
+```text
+PUT
+ ↓
+response.data
+ ↓
+updateTodo()
+ ↓
+setTodos()
+```
+
+Lesson 10 sử dụng:
+
+```text
+Cách 2
+```
+
+vì API đã trả về Todo mới.
+
+---
+
+# 38. Cập nhật State bằng map()
+
+Khi Edit:
+
+```tsx
+setTodos((currentTodos) =>
+  currentTodos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+);
+```
+
+Khi Delete:
+
+```tsx
+setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+```
+
+Có thể nhớ:
+
+```text
+Thêm
+ ↓
+spread + []
+
+Sửa
+ ↓
+map()
+
+Xóa
+ ↓
+filter()
+```
+
+---
+
+# 39. Không sửa trực tiếp State
+
+Không nên:
+
+```tsx
+todos[0].title = "Học React";
+```
+
+Không nên:
+
+```tsx
+todos.push(newTodo);
+```
+
+Thay vào đó:
+
+```tsx
+setTodos((currentTodos) => [...currentTodos, newTodo]);
+```
+
+Update:
+
+```tsx
+setTodos((currentTodos) =>
+  currentTodos.map(...)
+);
+```
+
+Delete:
+
+```tsx
+setTodos((currentTodos) =>
+  currentTodos.filter(...)
+);
+```
+
+Nguyên tắc:
+
+```text
+Không mutate State trực tiếp.
+
+Tạo State mới
+    ↓
+setState()
+```
+
+---
+
+# 40. React Hook Form trong Edit
+
+Lesson 9:
+
+```tsx
+register();
+handleSubmit();
+errors;
+reset();
+```
+
+Lesson 10 bổ sung:
+
+```tsx
+reset(data);
+```
+
+để đưa dữ liệu Todo cũ vào Form.
+
+Luồng:
+
+```text
+Todo
+ ↓
+reset()
+ ↓
+React Hook Form
+ ↓
+Input
+```
+
+---
+
+# 41. Validation vẫn giữ nguyên
+
+Edit cũng phải Validate:
+
+```tsx
+<input
+  placeholder="Nhập công việc..."
+  {...register("title", {
+    required: "Vui lòng nhập công việc",
+    minLength: {
+      value: 3,
+      message: "Công việc phải có ít nhất 3 ký tự",
+    },
+    maxLength: {
+      value: 100,
+      message: "Công việc không được quá 100 ký tự",
+    },
+  })}
+/>
+```
+
+Nếu User sửa thành:
+
+```text
+ab
+```
+
+thì:
+
+```text
+Công việc phải có ít nhất 3 ký tự
+```
+
+Không gọi:
+
+```tsx
+axios.put();
+```
+
+Luồng:
+
+```text
+Edit
+ ↓
+Submit
+ ↓
+Validate
+ ↓
+Có lỗi
+ ↓
+Không PUT
+```
+
+---
+
+# 42. Edit không có nghĩa là bỏ Validate
+
+Cả Add và Edit đều phải:
+
+```text
+Validate
+```
+
+```text
+ADD
+
+Form
+ ↓
+Validate
+ ↓
+POST
+```
+
+```text
+EDIT
+
+Form
+ ↓
+Validate
+ ↓
+PUT
+```
+
+React Hook Form giúp dùng chung Rule.
+
+---
+
+# 43. Loading khi Edit
+
+Trong project thực tế, PUT có thể mất thời gian.
+
+Có thể tạo:
+
+```tsx
+const [loading, setLoading] = useState(false);
+```
+
+Khi Submit:
+
+```tsx
+setLoading(true);
+```
+
+Sau khi hoàn thành:
+
+```tsx
+setLoading(false);
+```
+
+Button:
+
+```tsx
+<button type="submit" disabled={loading}>
+  {loading ? "Đang cập nhật..." : "Cập nhật"}
+</button>
+```
+
+Trong Lesson 10 có thể giới thiệu, chưa bắt buộc triển khai.
+
+---
+
+# 44. Cấu trúc Project sau Lesson 10
+
+```text
+src
+│
+├── components
+│   ├── TodoForm.tsx
+│   └── TodoItem.tsx
+│
+├── types
+│   └── todo.ts
+│
+└── App.tsx
+```
+
+Luồng:
+
+```text
+App
+ │
+ ├── todos
+ ├── editingTodo
+ │
+ ├── TodoForm
+ │     ├── Add
+ │     └── Edit
+ │
+ └── TodoItem
+       ├── Edit
+       └── Delete
+```
+
+---
+
+# 45. Bài tập thực hành
+
+## Bài 1 - Thêm nút Sửa
+
+Trong `TodoItem.tsx`:
+
+```text
+[Sửa]
+```
+
+Khi click:
+
+```tsx
+onEdit(todo);
+```
+
+---
+
+## Bài 2 - Tạo editingTodo
+
+Trong `App.tsx`:
+
+```tsx
+const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+```
+
+---
+
+## Bài 3 - Đưa Todo vào TodoForm
+
+```tsx
+<TodoForm
+  todo={editingTodo}
+  ...
+/>
+```
+
+---
+
+## Bài 4 - Hiển thị dữ liệu cũ
+
+Khi Edit:
+
+```text
+[ Học React ]
+```
+
+phải được đưa vào Input.
+
+Sử dụng:
+
+```tsx
+useEffect();
+```
+
+và:
+
+```tsx
+reset();
+```
+
+---
+
+## Bài 5 - PUT Todo
+
+Khi click:
+
+```text
+[Cập nhật]
+```
+
+gửi:
+
+```text
+PUT /todos/:id
+```
+
+Ví dụ:
+
+```text
+PUT /todos/1
+```
+
+---
+
+## Bài 6 - Cập nhật State
+
+Sau khi PUT thành công:
+
+```tsx
+setTodos();
+```
+
+Todo mới phải xuất hiện ngay trên giao diện.
+
+Không gọi lại:
+
+```text
+GET /todos
+```
+
+---
+
+## Bài 7 - Nút Hủy
+
+Khi Edit:
+
+```text
+[Cập nhật] [Hủy]
+```
+
+Click Hủy:
+
+```text
+editingTodo = null
+```
+
+Form trở về Add Mode.
+
+---
+
+# 46. Bài tập nâng cao
+
+Hoàn thiện giao diện:
+
+```text
+--------------------------------------
+
+              TODO LIST
+
+--------------------------------------
+
+[ Nhập công việc............... ] [Thêm]
+
+--------------------------------------
+
+□ Học React
+                    [Sửa] [Xóa]
+
+□ Học TypeScript
+                    [Sửa] [Xóa]
+
+☑ Làm bài tập
+                    [Sửa] [Xóa]
+
+--------------------------------------
+```
+
+Khi click:
+
+```text
+[Sửa]
+```
+
+Giao diện:
+
+```text
+--------------------------------------
+
+Đang sửa: Học React
+
+[ Học React................... ]
+
+[ Cập nhật ] [ Hủy ]
+
+--------------------------------------
+```
+
+Sau khi cập nhật:
+
+```text
+--------------------------------------
+
+[ Nhập công việc............... ] [Thêm]
+
+--------------------------------------
+
+□ Học React Hook Form
+                    [Sửa] [Xóa]
+
+□ Học TypeScript
+                    [Sửa] [Xóa]
+
+--------------------------------------
+```
+
+---
+
+# 47. Bài tập nâng cao 2 - Edit Completed
+
+Todo:
+
+```tsx
+interface Todo {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+```
+
+Mở rộng Form:
+
+```text
+[ Học React ]
+
+[ ] Hoàn thành
+
+[ Cập nhật ] [ Hủy ]
+```
+
+Form:
+
+```tsx
+interface TodoFormData {
+  title: string;
+  completed: boolean;
+}
+```
+
+Checkbox:
+
+```tsx
+<input type="checkbox" {...register("completed")} />
+```
+
+Khi Edit:
+
+```tsx
+reset({
+  title: todo.title,
+  completed: todo.completed,
+});
+```
+
+PUT:
+
+```tsx
+await axios.put<Todo>(`http://localhost:3000/todos/${todo.id}`, {
+  ...todo,
+  title: data.title,
+  completed: data.completed,
+});
+```
+
+---
+
+# 48. Bài tập nâng cao 3 - Tách API
+
+Tạo:
+
+```text
+src
+├── api
+│   └── todoApi.ts
+│
+├── components
+│   ├── TodoForm.tsx
+│   └── TodoItem.tsx
+│
+├── types
+│   └── todo.ts
+│
+└── App.tsx
+```
+
+`todoApi.ts`:
+
+```tsx
+import axios from "axios";
+import type { Todo } from "../types/todo";
+
+const API_URL = "http://localhost:3000/todos";
+
+export const getTodos = async () => {
+  const response = await axios.get<Todo[]>(API_URL);
+
+  return response.data;
+};
+
+export const createTodo = async (data: Omit<Todo, "id">) => {
+  const response = await axios.post<Todo>(API_URL, data);
+
+  return response.data;
+};
+
+export const updateTodoApi = async (id: string, data: Partial<Todo>) => {
+  const response = await axios.put<Todo>(`${API_URL}/${id}`, data);
+
+  return response.data;
+};
+
+export const deleteTodo = async (id: string) => {
+  await axios.delete(`${API_URL}/${id}`);
+};
+```
+
+Khi đó Component sẽ sạch hơn.
+
+---
+
+# 49. Một số lỗi thường gặp
+
+## Lỗi 1 - Không có id
+
+Sai:
+
+```tsx
+axios.put("http://localhost:3000/todos", data);
+```
+
+Đúng:
+
+```tsx
+axios.put(`http://localhost:3000/todos/${todo.id}`, data);
+```
+
+Nhớ:
 
 ```text
 POST
-→ Thêm
+
+/todos
+
 
 PUT
-→ Sửa
+
+/todos/:id
+```
+
+---
+
+## Lỗi 2 - Không đưa dữ liệu cũ vào Form
+
+Click Edit nhưng Form vẫn:
+
+```text
+[                     ]
+```
+
+Nguyên nhân:
+
+```text
+Todo đã được chọn
+nhưng React Hook Form chưa nhận dữ liệu mới.
+```
+
+Cần:
+
+```tsx
+useEffect(() => {
+  if (todo) {
+    reset({
+      title: todo.title,
+    });
+  }
+}, [todo, reset]);
+```
+
+---
+
+## Lỗi 3 - Edit xong nhưng UI không đổi
+
+API:
+
+```text
+PUT /todos/1
+```
+
+thành công nhưng UI vẫn hiển thị Todo cũ.
+
+Nguyên nhân:
+
+```text
+Server đã cập nhật
+nhưng State React chưa cập nhật.
+```
+
+Cần:
+
+```tsx
+onUpdate(response.data);
+```
+
+và:
+
+```tsx
+const updateTodo = (updatedTodo: Todo) => {
+  setTodos((currentTodos) =>
+    currentTodos.map((todo) =>
+      todo.id === updatedTodo.id ? updatedTodo : todo,
+    ),
+  );
+};
+```
+
+---
+
+## Lỗi 4 - Quên reset Edit Mode
+
+Sau khi Edit thành công Form vẫn ở:
+
+```text
+[Cập nhật] [Hủy]
+```
+
+Cần:
+
+```tsx
+setEditingTodo(null);
+```
+
+Sau đó:
+
+```text
+EDIT MODE
+   ↓
+UPDATE
+   ↓
+setEditingTodo(null)
+   ↓
+ADD MODE
+```
+
+---
+
+## Lỗi 5 - Nút Hủy làm Submit Form
+
+Trong `<form>`, nên viết:
+
+```tsx
+<button type="button" onClick={onCancel}>
+  Hủy
+</button>
+```
+
+Nút Submit:
+
+```tsx
+<button type="submit">Cập nhật</button>
+```
+
+Nhớ:
+
+```text
+Submit button
+    ↓
+type="submit"
+
+Cancel button
+    ↓
+type="button"
+```
+
+---
+
+# 50. Kiến thức cần nhớ
+
+### Chọn Todo Edit
+
+```tsx
+setEditingTodo(todo);
+```
+
+### Form nhận Todo
+
+```tsx
+<TodoForm todo={editingTodo} />
+```
+
+### Kiểm tra Edit Mode
+
+```tsx
+const isEditMode = Boolean(todo);
+```
+
+### Đưa dữ liệu cũ vào Form
+
+```tsx
+reset({
+  title: todo.title,
+});
+```
+
+### Submit
+
+```tsx
+<form onSubmit={handleSubmit(onSubmit)}>
+```
+
+### PUT
+
+```tsx
+axios.put(`http://localhost:3000/todos/${todo.id}`, data);
+```
+
+### Cập nhật State
+
+```tsx
+setTodos((currentTodos) =>
+  currentTodos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+);
+```
+
+### Hủy Edit
+
+```tsx
+setEditingTodo(null);
+```
+
+---
+
+# 51. Tổng kết Lesson 10
+
+Lesson 9:
+
+```text
+CREATE
+
+Form
+ ↓
+React Hook Form
+ ↓
+Validate
+ ↓
+POST
+ ↓
+setTodos()
+```
+
+Lesson 10:
+
+```text
+UPDATE
+
+Click Edit
+ ↓
+Todo
+ ↓
+reset()
+ ↓
+React Hook Form
+ ↓
+Validate
+ ↓
+PUT
+ ↓
+onUpdate()
+ ↓
+setTodos()
+ ↓
+UI
+```
+
+CRUD hiện tại:
+
+```text
+GET
+POST
+PUT
+DELETE
+```
+
+Luồng Edit quan trọng nhất:
+
+```text
+Click Edit
+    ↓
+setEditingTodo(todo)
+    ↓
+TodoForm nhận todo
+    ↓
+useEffect()
+    ↓
+reset()
+    ↓
+Hiển thị dữ liệu cũ
+    ↓
+User chỉnh sửa
+    ↓
+handleSubmit()
+    ↓
+Validate
+    ↓
+onSubmit()
+    ↓
+axios.put()
+    ↓
+PUT /todos/:id
+    ↓
+JSON Server
+    ↓
+response.data
+    ↓
+onUpdate()
+    ↓
+map()
+    ↓
+setTodos()
+    ↓
+setEditingTodo(null)
+    ↓
+React render
+```
+
+Điểm cần nhớ:
+
+```text
+ADD
+
+POST
+ ↓
+onAdd()
+ ↓
+setTodos()
+```
+
+```text
+EDIT
+
+PUT
+ ↓
+onUpdate()
+ ↓
+map()
+ ↓
+setTodos()
+```
+
+```text
+DELETE
 
 DELETE
-→ Xóa
+ ↓
+filter()
+ ↓
+setTodos()
+```
 
-GET
-→ Lấy dữ liệu
+Sau Lesson 10, sinh viên đã hoàn thành CRUD Todo cơ bản với:
 
-reset()
-→ Đưa dữ liệu vào Form
-
-editingTodo
-→ Todo đang sửa
-
-map()
-→ Thay Todo cũ bằng Todo mới
+```text
+React
++
+TypeScript
++
+Axios
++
+JSON Server
++
+React Hook Form
 ```
