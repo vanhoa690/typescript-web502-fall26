@@ -308,7 +308,7 @@ function App() {
         {/* Chỉ bảo vệ trang /add, /edit/:id */}
         <Route element={<PrivateRoute />}>
           <Route path="/add" element={<AddPage />} />
-          <Route path="/edtt/:id" element={<EditPage />} />
+          <Route path="/edit/:id" element={<EditPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
