@@ -12,8 +12,6 @@ Sau bài học này, sinh viên có thể:
 - Bảo vệ trang `/add` bằng `PrivateRoute`.
 - Đăng xuất và xóa thông tin đăng nhập.
 
-**Yêu cầu của bài:** Đăng nhập thành công thì chuyển đến trang `/`. Chỉ trang `/add` yêu cầu đăng nhập. Không tạo trang Dashboard.
-
 ---
 
 ## 2. Ôn tập Lesson 11
@@ -293,6 +291,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ListPage from "./pages/ListPage";
 import LoginPage from "./pages/LoginPage";
 import AddPage from "./pages/AddPage";
+import EditPage from "./pages/EditPage";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -306,9 +305,10 @@ function App() {
         {/* Trang đăng nhập: công khai */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Chỉ bảo vệ trang /add */}
+        {/* Chỉ bảo vệ trang /add, /edit/:id */}
         <Route element={<PrivateRoute />}>
           <Route path="/add" element={<AddPage />} />
+          <Route path="/edtt/:id" element={<EditPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -327,7 +327,9 @@ src/
 ├── pages/
 │   ├── RegisterPage.tsx
 │   ├── LoginPage.tsx
-│   └── HomePage.tsx
+│   └── ListPage.tsx
+|   └── AddPage.tsx
+|   └── EditPage.tsx
 ├── App.tsx
 └── main.tsx
 ```
